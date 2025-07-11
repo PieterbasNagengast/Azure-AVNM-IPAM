@@ -297,6 +297,53 @@ az network manager ipam-pool show --name <pool-name> --network-manager-name <avn
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 📖 Documentation
+
+### Online Documentation
+
+Comprehensive documentation is available at: **[Azure AVNM IPAM Documentation](https://tanure.github.io/Azure-AVNM-IPAM/)**
+
+The documentation includes:
+- 🚀 **Quick Start Guide** - Get up and running quickly
+- 🏗️ **Architecture Deep Dive** - Understand the IPAM hierarchy
+- ⚙️ **Configuration Reference** - Complete parameter documentation
+- 🎯 **Best Practices** - Production deployment recommendations
+- 🔧 **Troubleshooting** - Common issues and solutions
+
+### Local Documentation Development
+
+To run the documentation locally:
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run docs:dev
+
+# Build static documentation
+npm run docs:build
+
+# Deploy to GitHub Pages (maintainers only)
+npm run docs:deploy
+```
+
+The documentation is built with [VuePress](https://vuepress.vuejs.org/) and automatically deployed to GitHub Pages when changes are pushed to the main branch.
+
+### Documentation Structure
+
+```
+docs/
+├── README.md                    # Documentation home page
+├── .vuepress/
+│   └── config.js               # VuePress configuration
+├── quick-start/                # Getting started guides
+├── architecture/               # Architecture documentation  
+├── configuration/              # Configuration guides
+├── reference/                  # API and parameter reference
+└── examples/                   # Usage examples
+```
+
 ## 📚 Additional Resources
 
 - [Azure Virtual Network Manager Documentation](https://docs.microsoft.com/azure/virtual-network-manager/)
