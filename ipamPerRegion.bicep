@@ -4,6 +4,9 @@ param regionCIDR string
 param rootIPAMpoolName string
 param avnmName string
 
+// This parameter is used to control the deployment of the IPAM resources.
+param deploy bool = false
+
 // Azure Region CIDR size used to calculate the region CIDRs
 @maxValue(32)
 @minValue(8)
@@ -63,12 +66,12 @@ var applicationLzCorpCount = max(1, totalRemainingCount * CorpAndOnlineSplitFact
 var applicationLzCorpCIDRs = take(applicationLzCIDRs, applicationLzCorpCount)
 var applicationLzOnlineCIDRs = skip(applicationLzCIDRs, applicationLzCorpCount)
 
-resource avnm 'Microsoft.Network/networkManagers@2024-05-01' existing = {
+resource avnm 'Microsoft.Network/networkManagers@2024-05-01' existing = if (deploy) {
   name: avnmName
 }
 
 // Root IPAM pool for the Azure region
-resource regionIpamPool 'Microsoft.Network/networkManagers/ipamPools@2024-05-01' = {
+resource regionIpamPool 'Microsoft.Network/networkManagers/ipamPools@2024-05-01' = if (deploy) {
   name: 'region-${replace(replace(regionCIDR, '/', '-'), '.', '-')}'
   parent: avnm
   location: location
@@ -82,7 +85,7 @@ resource regionIpamPool 'Microsoft.Network/networkManagers/ipamPools@2024-05-01'
   }
 }
 
-resource platformLzIpamPool 'Microsoft.Network/networkManagers/ipamPools@2024-05-01' = {
+resource platformLzIpamPool 'Microsoft.Network/networkManagers/ipamPools@2024-05-01' = if (deploy) {
   name: 'platform-${replace(replace(location, ' ', '-'), '.', '-')}'
   parent: avnm
   location: location
@@ -94,7 +97,7 @@ resource platformLzIpamPool 'Microsoft.Network/networkManagers/ipamPools@2024-05
   }
 }
 
-resource platformConnectivityLzIpamPool 'Microsoft.Network/networkManagers/ipamPools@2024-05-01' = {
+resource platformConnectivityLzIpamPool 'Microsoft.Network/networkManagers/ipamPools@2024-05-01' = if (deploy) {
   name: 'platform-connectivity-${replace(replace(location, ' ', '-'), '.', '-')}'
   parent: avnm
   location: location
@@ -106,7 +109,7 @@ resource platformConnectivityLzIpamPool 'Microsoft.Network/networkManagers/ipamP
   }
 }
 
-resource platformIdentityLzIpamPool 'Microsoft.Network/networkManagers/ipamPools@2024-05-01' = {
+resource platformIdentityLzIpamPool 'Microsoft.Network/networkManagers/ipamPools@2024-05-01' = if (deploy) {
   name: 'platform-identity-${replace(replace(location, ' ', '-'), '.', '-')}'
   parent: avnm
   location: location
@@ -118,7 +121,7 @@ resource platformIdentityLzIpamPool 'Microsoft.Network/networkManagers/ipamPools
   }
 }
 
-resource applicationLzIpamPool 'Microsoft.Network/networkManagers/ipamPools@2024-05-01' = {
+resource applicationLzIpamPool 'Microsoft.Network/networkManagers/ipamPools@2024-05-01' = if (deploy) {
   name: 'application-${replace(replace(location, ' ', '-'), '.', '-')}'
   parent: avnm
   location: location
@@ -130,7 +133,7 @@ resource applicationLzIpamPool 'Microsoft.Network/networkManagers/ipamPools@2024
   }
 }
 
-resource applicationLzCorpIpamPool 'Microsoft.Network/networkManagers/ipamPools@2024-05-01' = {
+resource applicationLzCorpIpamPool 'Microsoft.Network/networkManagers/ipamPools@2024-05-01' = if (deploy) {
   name: 'application-corp-${replace(replace(location, ' ', '-'), '.', '-')}'
   parent: avnm
   location: location
@@ -142,7 +145,7 @@ resource applicationLzCorpIpamPool 'Microsoft.Network/networkManagers/ipamPools@
   }
 }
 
-resource applicationLzOnlineIpamPool 'Microsoft.Network/networkManagers/ipamPools@2024-05-01' = {
+resource applicationLzOnlineIpamPool 'Microsoft.Network/networkManagers/ipamPools@2024-05-01' = if (deploy) {
   name: 'application-online-${replace(replace(location, ' ', '-'), '.', '-')}'
   parent: avnm
   location: location
@@ -153,3 +156,20 @@ resource applicationLzOnlineIpamPool 'Microsoft.Network/networkManagers/ipamPool
     description: 'IPAM pool for Application Online Landing Zones in ${regionDisplayName} region'
   }
 }
+
+// outputs
+output regionCIDR string = regionCIDR
+// Platform Landing Zone CIDRs
+output platformLzCIDRs array = platformLzCIDRs
+output platformLzCIDRsCount int = length(platformLzCIDRs)
+output platformConnectivityCIDRs array = platformConnectivityCIDRs
+output platformConnectivityCIDRsCount int = length(platformConnectivityCIDRs)
+output platformIdentityCIDRs array = platformIdentityCIDRs
+output platformIdentityCIDRsCount int = length(platformIdentityCIDRs)
+
+output applicationLzCIDRs array = applicationLzCIDRs
+output applicationLzCIDRsCount int = length(applicationLzCIDRs)
+output applicationLzCorpCIDRs array = applicationLzCorpCIDRs
+output applicationLzCorpCIDRsCount int = length(applicationLzCorpCIDRs)
+output applicationLzOnlineCIDRs array = applicationLzOnlineCIDRs
+output applicationLzOnlineCIDRsCount int = length(applicationLzOnlineCIDRs)

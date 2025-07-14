@@ -1,6 +1,8 @@
 import { _environment, _regions } from './types.bicep'
 
 param location string = resourceGroup().location
+// This parameter is used to control the deployment of the IPAM resources.
+param deploy bool = false
 
 param ipam _environment = {
   avnm: {
@@ -35,7 +37,7 @@ param regions _regions = [
   }
 ]
 
-resource avnm 'Microsoft.Network/networkManagers@2024-05-01' = {
+resource avnm 'Microsoft.Network/networkManagers@2024-05-01' = if (deploy) {
   name: ipam.avnm.name
   location: location
   properties: {
@@ -46,7 +48,7 @@ resource avnm 'Microsoft.Network/networkManagers@2024-05-01' = {
   }
 }
 
-resource rootIPAMpool 'Microsoft.Network/networkManagers/ipamPools@2024-05-01' = {
+resource rootIPAMpool 'Microsoft.Network/networkManagers/ipamPools@2024-05-01' = if (deploy) {
   name: 'root-${replace(replace(ipam.settings.AzureCIDR, '/', '-'), '.', '-')}'
   parent: avnm
   location: location
@@ -72,6 +74,33 @@ module ipamPerRegion 'ipamPerRegion.bicep' = [
       PlatformAndApplicationSplitFactor: region.PlatformAndApplicationSplitFactor
       ConnectivityAndIdentitySplitFactor: region.ConnectivityAndIdentitySplitFactor
       CorpAndOnlineSplitFactor: region.CorpAndOnlineSplitFactor
+      deploy: deploy
+    }
+  }
+]
+
+// outputs
+output AzureCIDR string = ipam.settings.AzureCIDR
+
+// outputs per region:
+output regionIpamPools array = [
+  for (region, i) in regions: {
+    Region: region.displayName
+    value: {
+      name: region.name
+      regionCIDR: region.cidr
+      platformLzCIDRs: ipamPerRegion[i].outputs.platformLzCIDRs
+      platformLzCIDRsCount: ipamPerRegion[i].outputs.platformLzCIDRsCount
+      platformConnectivityCIDRs: ipamPerRegion[i].outputs.platformConnectivityCIDRs
+      platformConnectivityCIDRsCount: ipamPerRegion[i].outputs.platformConnectivityCIDRsCount
+      platformIdentityCIDRs: ipamPerRegion[i].outputs.platformIdentityCIDRs
+      platformIdentityCIDRsCount: ipamPerRegion[i].outputs.platformIdentityCIDRsCount
+      applicationLzCIDRs: ipamPerRegion[i].outputs.applicationLzCIDRs
+      applicationLzCIDRsCount: ipamPerRegion[i].outputs.applicationLzCIDRsCount
+      applicationLzCorpCIDRs: ipamPerRegion[i].outputs.applicationLzCorpCIDRs
+      applicationLzCorpCIDRsCount: ipamPerRegion[i].outputs.applicationLzCorpCIDRsCount
+      applicationLzOnlineCIDRs: ipamPerRegion[i].outputs.applicationLzOnlineCIDRs
+      applicationLzOnlineCIDRsCount: ipamPerRegion[i].outputs.applicationLzOnlineCIDRsCount
     }
   }
 ]

@@ -297,7 +297,19 @@ az network manager ipam-pool show --name <pool-name> --network-manager-name <avn
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 📚 Additional Resources
+## Parameter Planning and Prediction
+
+Before deploying this solution, it's highly recommended to review the **[Parameter Prediction Table](parameter-prediction-table.md)** which provides:
+
+- **Impact analysis** of different parameter combinations
+- **CIDR count predictions** for various split factors
+- **Region CIDR Split Size** comparison and recommendations
+- **Cross-parameter impact matrices** showing how changes affect allocations
+- **Practical scenarios** for different organizational needs
+
+This analysis helps you understand how your parameter choices will affect the final CIDR allocation and plan your IP addressing strategy accordingly.
+
+## �📚 Additional Resources
 
 - [Azure Virtual Network Manager Documentation](https://docs.microsoft.com/azure/virtual-network-manager/)
 - [Azure IPAM Documentation](https://docs.microsoft.com/azure/virtual-network-manager/concept-ip-address-management)
