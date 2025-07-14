@@ -2,7 +2,9 @@ import { _environment, _regions } from './types.bicep'
 
 param location string = resourceGroup().location
 // This parameter is used to control the deployment of the IPAM resources.
-param deploy bool = false
+// when set to false, the IPAM resources will not be deployed an only the outputs will be generated.
+@description('Set to true to deploy IPAM resources, false to only generate outputs.')
+param deploy bool = true
 
 param ipam _environment = {
   avnm: {
